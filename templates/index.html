@@ -1,0 +1,53 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Road Sign Detection</title>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/main.css') }}">
+</head>
+<body>
+    <h1>Road Sign Detection</h1>
+    <form action="/process_image" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <!-- <select name="model" id="model">
+            <option value="m1">Model 1 (Sequential Model)</option>
+            <option value="m2">Model 2 (YOLO Model)</option>
+        </select> -->
+        <input name="model" id="model" value="m2" type="hidden">
+        <input type="submit" value="Upload and Process">
+    </form>
+
+    <div id="result">
+        <img id="processed-image" alt="Processed Image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAA1JREFUGFdj+L+U4T8ABu8CpCYJ1DQAAAAASUVORK5CYII=">
+        <p id="text"></p>
+    </div>
+
+    <div id="error">
+        <p id="error-message"></p>
+    </div>
+
+
+    <script>
+        document.querySelector('form').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        var formData = new FormData(this);
+
+        fetch('/process_image', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            var image = data.processed_image ? "data:image/jpeg;base64," + data.processed_image : "";
+            document.getElementById("processed-image").src = image;
+            document.getElementById("text").textContent = data.text;
+            document.getElementById("error-message").textContent = data.error;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+    </script>
+</body>
+</html>
